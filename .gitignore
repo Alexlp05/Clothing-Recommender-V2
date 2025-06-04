@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Secrets
+.env
+code.env
+tokens/
+credentials.json
+
+# Fichiers générés
+*.sqlite3
+*.db
+
+# Images (gérées par Git LFS)
+*.jpg
+*.png
+*.jpeg
+!static/images/  # Garde le dossier mais ignore son contenu
