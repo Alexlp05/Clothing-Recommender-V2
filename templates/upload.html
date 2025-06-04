@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>📷 Ajouter un vêtement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);  /* Changé pour le dégradé vert/bleu */
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .upload-box {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .camera-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        video, #snapshot {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+    .camera-btn, .btn {
+        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);  /* Changé pour le dégradé vert/bleu */
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .camera-btn:hover, .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%);  /* Inversé pour l'effet hover */
+    }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+    input:focus, select:focus {
+        border-color: #84fab0;  /* Changé pour le vert */
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(132, 250, 176, 0.1);  /* Changé pour une ombre verte */
+    }
+
+        input[type="file"] {
+            background: #f8f9fa;
+            padding: 15px;
+            cursor: pointer;
+        }
+
+        .or-divider {
+            text-align: center;
+            position: relative;
+            margin: 30px 0;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .or-divider:before, .or-divider:after {
+            content: "";
+            position: absolute;
+            width: 45%;
+            height: 1px;
+            background-color: #ddd;
+            top: 50%;
+        }
+
+        .or-divider:before { left: 0; }
+        .or-divider:after { right: 0; }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        @media (max-width: 768px) {
+            .upload-box {
+                padding: 20px;
+            }
+
+            .camera-controls {
+                flex-direction: column;
+            }
+
+            .camera-btn {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+                .flash-messages {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .flash-message {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            animation: slideIn 0.5s ease-out, fadeOut 0.5s ease-out 3s forwards;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .flash-message:hover {
+            background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.flash-message');
+            messages.forEach(message => {
+                message.addEventListener('click', function() {
+                    message.style.animation = 'fadeOut 0.5s ease-out forwards';
+                    setTimeout(() => message.remove(), 500);
+                });
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    if (message) {
+                        message.style.animation = 'fadeOut 0.5s ease-out forwards';
+                        setTimeout(() => message.remove(), 500);
+                    }
+                }, 3000);
+            });
+        });
+    </script>
+</head>
+<body>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    <div class="upload-box">
+        <h1>Ajouter un vêtement</h1>
+
+        <div class="camera-section">
+            <video id="video" autoplay playsinline style="display: none;"></video>
+            <img id="snapshot" alt="Photo capturée" style="display: none;">
+            <div class="camera-controls">
+                <button type="button" id="startCamera" class="camera-btn">📷 Activer la caméra</button>
+                <button type="button" id="captureBtn" class="camera-btn" style="display: none;">📸 Prendre la photo</button>
+                <button type="button" id="retakeBtn" class="camera-btn" style="display: none;">🔄 Reprendre</button>
+            </div>
+        </div>
+
+        <div class="or-divider">ou</div>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Choisir une image :</label>
+                <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png">
+            </div>
+            
+            <div class="form-group">
+                <label for="nom">Nom du vêtement :</label>
+                <input type="text" id="nom" name="nom" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="type">Type :</label>
+                <select id="type" name="type" required>
+                    <option value="pull">Pull</option>
+                    <option value="t_shirt">T-shirt</option>
+                    <option value="pantalon">Pantalon</option>
+                    <option value="robe">Robe</option>
+                    <option value="jupe">Jupe</option>
+                    <option value="chemise">Chemise</option>
+                    <option value="manteau">Manteau</option>
+                    <option value="short">Short</option>
+                    <option value="bonnet">Bonnet</option>
+                    <option value="costume">Costume</option>
+                    <option value="chaussure">Chaussure</option>
+                    <option value="haut_sport">Haut de sport</option>
+                    <option value="bas_sport">Bas de sport</option>
+                    <option value="chaussure_sport">Chaussure de sport</option>
+                    <option value="maillot_bain_homme">Maillot de bain homme</option>
+                    <option value="maillot_bain_femme">Maillot de bain femme</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="chaleur">Indice de chaleur (1-10) :</label>
+                <input type="number" id="chaleur" name="chaleur" min="1" max="10" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="couleur">Couleur :</label>
+                <input type="text" id="couleur" name="couleur" required>
+            </div>
+            
+            <button type="submit" class="btn">💾 Sauvegarder</button>
+        </form>
+
+        {% if message %}
+        <p class="message">{{ message }}</p>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('index') }}" class="btn" style="text-decoration: none;">← Retour à l'accueil</a>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const snapshot = document.getElementById('snapshot');
+        const startCamera = document.getElementById('startCamera');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const fileInput = document.getElementById('file');
+        const canvas = document.createElement('canvas');
+        let stream = null;
+
+        startCamera.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                startCamera.style.display = 'none';
+                captureBtn.style.display = 'inline-block';
+                fileInput.disabled = true;
+            } catch (err) {
+                console.error(err);
+                alert("Erreur d'accès à la caméra: " + err.message);
+            }
+        });
+
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            snapshot.src = canvas.toDataURL('image/jpeg', 0.9);
+            video.style.display = 'none';
+            snapshot.style.display = 'block';
+            captureBtn.style.display = 'none';
+            retakeBtn.style.display = 'inline-block';
+            
+            // Arrêter la caméra
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        retakeBtn.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                snapshot.style.display = 'none';
+                captureBtn.style.display = 'inline-block';
+                retakeBtn.style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de la reprise de la photo: " + err.message);
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            if (snapshot.src && snapshot.style.display !== 'none') {
+                e.preventDefault();
+                try {
+                    const response = await fetch(snapshot.src);
+                    const blob = await response.blob();
+                    const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('nom', document.getElementById('nom').value);
+                    formData.append('type', document.getElementById('type').value);
+                    formData.append('chaleur', document.getElementById('chaleur').value);
+                    formData.append('couleur', document.getElementById('couleur').value);
+
+                    const result = await fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (result.ok) {
+                        window.location.reload();
+                    } else {
+                        throw new Error("Erreur lors de l'envoi");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Erreur lors de l'envoi de l'image: " + err.message);
+                }
+            }
+        });
+
+        // Nettoyer le flux vidéo quand on quitte la page
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

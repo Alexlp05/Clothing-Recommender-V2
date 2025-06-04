@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Calendar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Debug Calendar</h1>
+        
+        <div class="debug-info">
+            <h2>Informations de débogage</h2>
+            {% if debug_info %}
+                <pre>{{ debug_info }}</pre>
+            {% else %}
+                <p>Aucune information de débogage disponible.</p>
+            {% endif %}
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="/" class="btn">Retour à l'accueil</a>
+        </div>
+    </div>
+</body>
+</html>
