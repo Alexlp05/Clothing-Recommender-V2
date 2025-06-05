@@ -261,7 +261,7 @@ def create_tables():
         if conn:
             conn.close()
 
-def BDD_parmail(mail='local'): 
+def BDD_parmail(mail='local', couleur = ''): 
     conn = get_db_connection()
 
     cursor = conn.cursor()
@@ -273,17 +273,30 @@ def BDD_parmail(mail='local'):
 
 
     for table in tables:
-        cursor.execute(f"SELECT id, nom, chaleur, couleur, nb_utilisation FROM {table} WHERE utilisateur = '{mail}'")
-        rows = cursor.fetchall()
-        for row in rows:
-            clothes_database.append({
-                "id": row[0],
-                "nom": row[1],
-                "type": table,
-                "chaleur": row[2],
-                "couleur": row[3],
-                "nb_utilisation": row[4] 
-            })
+        if couleur == '':
+            cursor.execute(f"SELECT id, nom, chaleur, couleur, nb_utilisation FROM {table} WHERE utilisateur = '{mail}'")
+            rows = cursor.fetchall()
+            for row in rows:
+                clothes_database.append({
+                    "id": row[0],
+                    "nom": row[1],
+                    "type": table,
+                    "chaleur": row[2],
+                    "couleur": row[3],
+                    "nb_utilisation": row[4] 
+                })
+        else:
+            cursor.execute(f"SELECT id, nom, chaleur, couleur, nb_utilisation FROM {table} WHERE utilisateur = '{mail}' AND couleur = '{couleur}'")
+            rows = cursor.fetchall()
+            for row in rows:
+                clothes_database.append({
+                    "id": row[0],
+                    "nom": row[1],
+                    "type": table,
+                    "chaleur": row[2],
+                    "couleur": row[3],
+                    "nb_utilisation": row[4] 
+                })
 
 
     conn.close()
@@ -648,7 +661,7 @@ def increment_usage_count(id,table , user_email):
         if conn:
             conn.close()
 
-def BDD_parmail_use_croiss(mail='local'): 
+def BDD_parmail_use_croiss(couleur = '', mail='local'): 
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -659,12 +672,20 @@ def BDD_parmail_use_croiss(mail='local'):
     clothes_database = []
 
     for table in tables:
-        cursor.execute(f"""
-            SELECT id, nom, chaleur, couleur, nb_utilisation 
-            FROM {table} 
-            WHERE utilisateur = %s 
-            ORDER BY nb_utilisation ASC
-        """, (mail,))
+        if couleur == '':
+            cursor.execute(f"""
+                SELECT id, nom, chaleur, couleur, nb_utilisation 
+                FROM {table} 
+                WHERE utilisateur = %s 
+                ORDER BY nb_utilisation DESC
+            """, (mail,))
+        else:
+            cursor.execute(f"""
+                SELECT id, nom, chaleur, couleur, nb_utilisation 
+                FROM {table} 
+                WHERE utilisateur = %s AND couleur = %s
+                ORDER BY nb_utilisation DESC
+            """, (mail, couleur))
 
         rows = cursor.fetchall()
         for row in rows:
@@ -680,7 +701,7 @@ def BDD_parmail_use_croiss(mail='local'):
     conn.close()
     return clothes_database
 
-def BDD_parmail_use_decroiss(mail='local'): 
+def BDD_parmail_use_decroiss(couleur = '', mail='local'): 
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -691,12 +712,20 @@ def BDD_parmail_use_decroiss(mail='local'):
     clothes_database = []
 
     for table in tables:
-        cursor.execute(f"""
-            SELECT id, nom, chaleur, couleur, nb_utilisation 
-            FROM {table} 
-            WHERE utilisateur = %s 
-            ORDER BY nb_utilisation DESC
-        """, (mail,))
+        if couleur == '':
+            cursor.execute(f"""
+                SELECT id, nom, chaleur, couleur, nb_utilisation 
+                FROM {table} 
+                WHERE utilisateur = %s 
+                ORDER BY nb_utilisation DESC
+            """, (mail,))
+        else:
+            cursor.execute(f"""
+                SELECT id, nom, chaleur, couleur, nb_utilisation 
+                FROM {table} 
+                WHERE utilisateur = %s AND couleur = %s
+                ORDER BY nb_utilisation DESC
+            """, (mail, couleur))
 
         rows = cursor.fetchall()
         for row in rows:

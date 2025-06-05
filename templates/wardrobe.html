@@ -222,8 +222,8 @@
         </div>
 
         <!-- Filtres -->
-        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px;">
-            <form method="get" action="{{ url_for('wardrobe') }}">
+        <div style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 30px;">
+            <form method="get" action="{{ url_for('wardrobe') }}" style="display: flex; gap: 10px; align-items: center;">
             <input type="hidden" name="filtre" value="couleur">
             <select name="valeur" style="padding:6px 10px; border-radius:6px; border:1px solid #ccc;">
                 <option value="">-- Couleur --</option>

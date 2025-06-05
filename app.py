@@ -670,13 +670,13 @@ def wardrobe():
     valeur = request.args.get('valeur', '').strip()
     # Récupérer tous les vêtements de l'utilisateur
     if filtre == "croissant":
-        clothes = BDD_parmail_use_croiss(user_email)
+        clothes = BDD_parmail_use_croiss(valeur, user_email)
     elif filtre == "decroissant":
-        clothes = BDD_parmail_use_decroiss(user_email)
+        clothes = BDD_parmail_use_decroiss(valeur, user_email)
     elif filtre == "couleur" and valeur:
         clothes = BDD_parmail_par_couleur(valeur, user_email)
     else:
-        clothes = BDD_parmail(user_email)
+        clothes = BDD_parmail(user_email, valeur)
 
     clothes_by_type = {}
     for item in clothes:
