@@ -1,115 +1,83 @@
 import os
 from database import BDD_parmail
 from google_calendar_service import get_events
+from collections import Counter
+
+def couleur_score(couleur, couleurs_utilisees):
+    """
+    Calcule un score pour la couleur en fonction de la diversité et de l'harmonie.
+    Plus la couleur est différente des couleurs déjà utilisées, plus le score est élevé.
+    """
+    if not couleurs_utilisees:
+        return 1.0  # Favorise la première couleur
+    # Bonus si la couleur n'est pas encore utilisée
+    if couleur not in couleurs_utilisees:
+        return 1.5
+    # Sinon, pénalise la répétition
+    return 0.7
 
 def EstPlusProche(clothes, indice_chaleur, couleurs_utilisees):
     """
     Sélectionne l'élément de clothes le plus proche de l'indice_chaleur,
-    en tenant compte aussi du nb_utilisation et des couleurs déjà utilisées.
+    en tenant compte du nb_utilisation et des couleurs déjà utilisées.
+    Les couleurs différentes sont favorisées.
     """
     if not clothes:
         return None, '/static/images/default.jpg', None, None, None
 
-    indice_proche = 0
-    vetement = clothes[indice_proche]
-    nb_use = float('inf')
-    valeur_proche = float('inf')
+    best_score = float('-inf')
+    best_item = clothes[0]
 
-    for i, clothing in enumerate(clothes):
-        ecart = abs(clothing["chaleur"] - indice_chaleur)
+    for clothing in clothes:
+        ecart_chaleur = abs(clothing["chaleur"] - indice_chaleur)
+        score_chaleur = max(0, 10 - ecart_chaleur)  # Plus proche, mieux c'est
+        score_utilisation = -clothing["nb_utilisation"]  # Moins utilisé, mieux c'est
+        score_couleur = couleur_score(clothing["couleur"], couleurs_utilisees)
+        score_total = score_chaleur + score_utilisation + score_couleur * 2  # Couleur plus importante
 
-        meilleure_candidature = False
+        if score_total > best_score:
+            best_score = score_total
+            best_item = clothing
 
-        if ecart < valeur_proche:
-            meilleure_candidature = True
-            if valeur_proche-ecart<= 2:
-                if clothing["nb_utilisation"]+5 > nb_use:
-                    meilleure_candidature = False
-                elif (clothing["couleur"] not in couleurs_utilisees and vetement in couleurs_utilisees):
-                    meilleure_candidature = False
-        elif ecart - valeur_proche <= 2:
-            if clothing["nb_utilisation"] < nb_use+5:
-                meilleure_candidature = True
-            elif (clothing["couleur"] in couleurs_utilisees and vetement not in couleurs_utilisees):
-                meilleure_candidature = True
-
-        if meilleure_candidature:
-            indice_proche = i
-            valeur_proche = ecart
-            nb_use = clothing["nb_utilisation"]
-            vetement = clothes[indice_proche]
-
-
-    # Construction du chemin vers l’image
-    filename = vetement['type'].lower().replace(' ', '') + str(vetement['id']) + '.jpg'
+    filename = best_item['type'].lower().replace(' ', '') + str(best_item['id']) + '.jpg'
     path = f"static/images/{filename}"
-
     if not os.path.exists(path):
         filename = 'default.jpg'
-
     image_path = f"/static/images/{filename}"
 
-    return vetement['nom'], image_path, vetement['couleur'], vetement['id'], vetement['type']
-
+    return best_item['nom'], image_path, best_item['couleur'], best_item['id'], best_item['type']
 
 def EstPlusProche2(clothes, indice_chaleur, couleurs_utilisees):
-
     """
-
-    Sélectionne l'élément de clothes le plus proche de l'indice_chaleur,
-
-    en tenant compte aussi du nb_utilisation et des couleurs déjà utilisées.
-
+    Variante expressive : favorise la diversité de couleurs et l'originalité.
     """
-
     if not clothes:
-
         return None, '/static/images/default.jpg', None, None, None
 
- 
+    couleur_counts = Counter(couleurs_utilisees)
+    best_score = float('-inf')
+    best_item = clothes[0]
 
-    indice_proche = 0
+    for clothing in clothes:
+        ecart_chaleur = abs(clothing["chaleur"] - indice_chaleur)
+        score_chaleur = max(0, 10 - ecart_chaleur)
+        score_utilisation = -clothing["nb_utilisation"]
+        # Favorise les couleurs peu utilisées
+        score_couleur = 2.0 if couleur_counts[clothing["couleur"]] == 0 else 1.0 / (1 + couleur_counts[clothing["couleur"]])
+        score_total = score_chaleur + score_utilisation + score_couleur * 3  # Couleur très importante
 
-    vetement = clothes[indice_proche]
+        if score_total > best_score:
+            best_score = score_total
+            best_item = clothing
 
-    nb_use = float('inf')
-
-    valeur_proche = float('inf')
-
- 
-
-    for i, clothing in enumerate(clothes):
-
-        ecart = abs(clothing["chaleur"] - indice_chaleur)
-
-        meilleure_candidature = False
-
-        if ecart < valeur_proche:
-            meilleure_candidature = True
-            if valeur_proche-ecart<= 2:
-                if clothing["nb_utilisation"]+5 > nb_use:
-                    meilleure_candidature = False
-                elif (clothing["couleur"] in couleurs_utilisees and vetement["couleur"] not in couleurs_utilisees):
-                    meilleure_candidature = False
-        elif ecart - valeur_proche <= 2:
-            if clothing["nb_utilisation"] < nb_use+5:
-                meilleure_candidature = True
-            elif (clothing["couleur"] not in couleurs_utilisees and vetement["couleur"] in couleurs_utilisees):
-                meilleure_candidature = True
-        if meilleure_candidature:
-            indice_proche = i
-            valeur_proche = ecart
-            nb_use = clothing["nb_utilisation"]
-            vetement = clothes[indice_proche]
-    # Construction du chemin vers l’image
-    filename = vetement['type'].lower().replace(' ', '') + str(vetement['id']) + '.jpg'
+    filename = best_item['type'].lower().replace(' ', '') + str(best_item['id']) + '.jpg'
     path = f"static/images/{filename}"
-
     if not os.path.exists(path):
         filename = 'default.jpg'
     image_path = f"/static/images/{filename}"
 
-    return vetement['nom'], image_path, vetement['couleur'], vetement['id'], vetement['type']
+    return best_item['nom'], image_path, best_item['couleur'], best_item['id'], best_item['type']
+
 def reco_to_2_classes(recommendations):
     if not recommendations:
         return 2, 1  # valeurs par défaut
@@ -142,7 +110,7 @@ def get_clothes_types(genre, temperature, classe):
         if classe == 5:
             return ['chaussure_sport','maillot_bain_homme','t_shirt',indice_chaleur]
         if temperature <= 10:
-            return ['pull', 'pantalon', 't_shirt', 'manteau', 'bonnet', 'chaussure', indice_chaleur] if classe == 1 else \
+            return ['pull', 'pantalon', 't_shirt', 'manteau', 'chaussure', indice_chaleur] if classe == 1 else \
                    ['chemise', 'pantalon', 'manteau', 'chaussure', indice_chaleur] if classe == 2 else \
                    ['costume', 'chemise', 'manteau', 'chaussure', indice_chaleur]
         elif temperature <= 20:
@@ -154,7 +122,7 @@ def get_clothes_types(genre, temperature, classe):
                    ['veste', 'pantalon', 'chemise', 'chaussure', indice_chaleur] if classe == 2 else \
                    ['costume', 'chemise', 'chaussure', indice_chaleur]
         else:
-            return ['t_shirt', 'short', 'couvre_chef', 'chaussure', indice_chaleur] if classe == 1 else \
+            return ['t_shirt', 'short', 'chaussure', indice_chaleur] if classe == 1 else \
                    ['chemise', 'short', 'chaussure', indice_chaleur] if classe == 2 else \
                    ['chemise', 'short', 'chaussure', indice_chaleur]
 
@@ -187,7 +155,7 @@ def adjust_for_weather(type_clothes, condition, temperature):
         if "manteau" not in type_clothes and "veste" not in type_clothes and "haut_sport" not in type_clothes:
             type_clothes.insert(-1, "manteau")
         if "veste" in type_clothes and "couvre_chef" not in type_clothes and "bonnet" not in type_clothes:
-            type_clothes.insert(-1, "bonnet")
+            type_clothes.insert(-1, "couvre_chef")
         type_clothes[-1] += 1
 
     elif ("rain" in c) and temperature > 20:

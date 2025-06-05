@@ -34,6 +34,7 @@
             padding: 15px;
             background: rgba(132, 250, 176, 0.1);
             border-radius: 8px;
+            font-size: 1.4em;
         }
 
         .category {
@@ -210,15 +211,57 @@
         <h1>Ma Garde-Robe</h1>
         
         <div class="stats">
-            <p>Nombre total de vêtements : {{ total_items }}</p>
+            <p>
+            <span style="font-size:1.2em; font-weight:500; color:#2c3e50;">
+            👕 {{ total_items }}
+            </span>
+            <span style="color:#666; margin-left:8px;">
+            vêtement{{ "s" if total_items != 1 else "" }} au total
+            </span>
+            </p>
+        </div>
+
+        <!-- Filtres -->
+        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px;">
+            <form method="get" action="{{ url_for('wardrobe') }}">
+            <input type="hidden" name="filtre" value="couleur">
+            <select name="valeur" style="padding:6px 10px; border-radius:6px; border:1px solid #ccc;">
+                <option value="">-- Couleur --</option>
+                <option value="noir">Noir</option>
+                <option value="blanc">Blanc</option>
+                <option value="gris">Gris</option>
+                <option value="bleu">Bleu</option>
+                <option value="rouge">Rouge</option>
+                <option value="vert">Vert</option>
+                <option value="jaune">Jaune</option>
+                <option value="rose">Rose</option>
+                <option value="marron">Marron</option>
+                <option value="violet">Violet</option>
+                <option value="orange">Orange</option>
+                <option value="beige">Beige</option>
+                <option value="autre">Autre</option>
+            </select>
+            <button type="submit" class="back-btn" style="margin:0; border:none;">Filtrer par couleur</button>
+            </form>
+            <form method="get" action="{{ url_for('wardrobe') }}">
+            <input type="hidden" name="filtre" value="croissant">
+            <button type="submit" class="back-btn" style="margin:0; border:none;">Utilisation croissante</button>
+            </form>
+            <form method="get" action="{{ url_for('wardrobe') }}">
+            <input type="hidden" name="filtre" value="decroissant">
+            <button type="submit" class="back-btn" style="margin:0; border:none;">Utilisation décroissante</button>
+            </form>
+            <form method="get" action="{{ url_for('wardrobe') }}">
+            <button type="submit" class="back-btn" style="margin:0; border:none;">Tous</button>
+            </form>
         </div>
 
         {% for type, items in clothes_by_type.items() %}
         <div class="category">
             <h2 class="category-title">{{ type|replace('_', ' ')|title }}</h2>
-            <div class="clothes-grid">
+            <div class="clothes-scroll" style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px;">
                 {% for item in items %}
-                <div class="clothing-item">
+                <div class="clothing-item" style="min-width: 200px; flex: 0 0 auto;">
                     <img src="{{ url_for('static', filename='images/' + item.type + item.id|string + '.jpg') }}" 
                          alt="{{ item.nom }}" 
                          class="clothing-image">

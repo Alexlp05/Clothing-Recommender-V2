@@ -122,7 +122,7 @@ def get_events(credentials):
 def analyze_schedule_clothing(events):
     sports_keywords = ['sport','entraînement', 'séance de sport', 'gymnastique', 'course', 'footing', 'yoga', 'pilates', 'musculation', 'cyclisme', 'football', 'basketball', 'tennis', 'badminton', 'boxe', 'arts martiaux', 'ski', 'danse', 'crossfit', 'randonnée', 'vélo', 'escalade', 'lutte', 'vtt', 'skateboard', 'kickboxing', 'tennis de table', 'haltérophilie', 'foot', 'handball', 'rugby', 'saut en hauteur', 'athlétisme', 'stretching', 'marche', 'zumba', 'équitation', 'roller']
     plage_keywords = ['natation', 'paddle', 'surf', 'plage', 'canoe', 'aviron', 'kayak','baignade', 'mer', 'océan', 'piscine', 'bronzer', 'bronzette', 'maillot', 'bouée', 'snorkeling', 'plongée', 'jet ski', 'crème solaire', 'sable', 'vagues', 'tuba', 'palmes', 'lagon', 'rivage', 'rivière', 'bord de mer', 'parasol', 'serviette', 'transat']
-    pro_keywords = ['meeting', 'boulot', 'réunion', 'travail', 'entretien', 'taf', 'rendez-vous', 'rdv', 'stage', 'alternance', 'conférence', 'présentation', 'séminaire', 'formation', 'congrès', 'jury', 'examen', 'oral', 'business', 'client', 'mission', 'audit','consultation', 'professionnel', 'corporate', 'workshop', 'atelier', 'entrepôt', 'bureaux', 'siège', 'direction', 'comité', 'entreprise', 'bureau', 'formel']
+    pro_keywords = ['work', 'meeting', 'boulot', 'réunion', 'travail', 'entretien', 'taf', 'rendez-vous', 'rdv', 'stage', 'alternance', 'conférence', 'présentation', 'séminaire', 'formation', 'congrès', 'jury', 'examen', 'oral', 'business', 'client', 'mission', 'audit','consultation', 'professionnel', 'corporate', 'workshop', 'atelier', 'entrepôt', 'bureaux', 'siège', 'direction', 'comité', 'entreprise', 'bureau', 'formel']
 
 
     recommendations = []

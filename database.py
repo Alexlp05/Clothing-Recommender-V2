@@ -1,9 +1,268 @@
 import pymysql
 import os
 import shutil
+import psycopg2
+from psycopg2 import sql
+from dotenv import load_dotenv
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+load_dotenv()  # Charge les variables depuis .env
+
+DB_PASSWORD = "N4xrmoiOOJxoKNaxXcxZYr30SDag4CkN"
+
+def get_db_connection():
+    return pymysql.connect(
+        host='127.0.0.1',
+        user='root',
+        password='mdpsql',
+        database='clothes'
+    )
+
+def get_db_connection2():
+    return psycopg2.connect(
+        host="dpg-df8dfeuncj78730654ag-a",
+        dbname="clothing_recommender_db",
+        user="clothing_recommender_db_user",
+        password="DB_PASSWORD",  # À stocker en variable d'environnement
+        port="5432"
+    )
+
+    
+def create_tables():
+    """Crée toutes les tables dans la base existante"""
+    tables = {
+        "pull": """
+            CREATE TABLE IF NOT EXISTS pull (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "t_shirt": """
+            CREATE TABLE IF NOT EXISTS t_shirt (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "jupe": """
+            CREATE TABLE IF NOT EXISTS jupe (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "robe": """
+            CREATE TABLE IF NOT EXISTS robe (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "pantalon": """
+            CREATE TABLE IF NOT EXISTS pantalon (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "chemise": """
+            CREATE TABLE IF NOT EXISTS chemise (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "manteau": """
+            CREATE TABLE IF NOT EXISTS manteau (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "short": """
+            CREATE TABLE IF NOT EXISTS short (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "couvre_chef": """
+            CREATE TABLE IF NOT EXISTS couvre_chef (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "bonnet": """
+            CREATE TABLE IF NOT EXISTS bonnet (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "haut_sport": """
+            CREATE TABLE IF NOT EXISTS haut_sport (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "veste": """
+            CREATE TABLE IF NOT EXISTS veste (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "chaussure": """
+            CREATE TABLE IF NOT EXISTS chaussure (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "costume": """
+            CREATE TABLE IF NOT EXISTS costume (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "collants": """
+            CREATE TABLE IF NOT EXISTS collants (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "bas_sport": """
+            CREATE TABLE IF NOT EXISTS bas_sport (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "chaussure_sport": """
+            CREATE TABLE IF NOT EXISTS chaussure_sport (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "maillot_bain_femme": """
+            CREATE TABLE IF NOT EXISTS maillot_bain_femme (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """,
+        "maillot_bain_homme": """
+            CREATE TABLE IF NOT EXISTS maillot_bain_homme (
+                id SERIAL PRIMARY KEY,
+                couleur VARCHAR(50),
+                nom VARCHAR(100),
+                chaleur INT CHECK (chaleur BETWEEN 1 AND 10),
+                utilisateur VARCHAR(200),
+                nb_utilisation INT DEFAULT 0
+            )
+        """
+    }
+
+    try:
+        # Connexion à la DB existante
+        conn = get_db_connection()
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cur = conn.cursor()
+
+        # Nettoyage des tables existantes
+        cur.execute("""
+            DO $$
+            DECLARE
+                tbl text;
+            BEGIN
+                FOR tbl IN 
+                    SELECT tablename 
+                    FROM pg_tables 
+                    WHERE schemaname = 'public'
+                LOOP
+                    EXECUTE 'DROP TABLE IF EXISTS ' || tbl || ' CASCADE';
+                    RAISE NOTICE 'Table supprimée: %', tbl;
+                END LOOP;
+            END $$;
+        """)
+        print("✔ Tables existantes supprimées")
+
+        # Création des nouvelles tables
+        for table_name, table_sql in tables.items():
+            cur.execute(table_sql)
+            print(f"✔ Table '{table_name}' créée")
+
+        cur.close()
+        print("✅ Structure de base de données mise à jour avec succès")
+
+    except Exception as e:
+        print(f"❌ Erreur: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 def BDD_parmail(mail='local'): 
-    conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+    conn = get_db_connection()
 
     cursor = conn.cursor()
 
@@ -32,7 +291,7 @@ def BDD_parmail(mail='local'):
     return clothes_database
 
 def BDD_total(): 
-    conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+    conn = get_db_connection()
 
     cursor = conn.cursor()
 
@@ -109,7 +368,7 @@ chaleur (int),
 nb_utilisation (int),
 """
     try:
-        conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+        conn = get_db_connection()
 
         with conn.cursor() as cursor:
             query = f"""
@@ -203,7 +462,8 @@ def delete_clothing_item(id, table_name):
     """
     conn = None
     try:
-        conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+        conn = get_db_connection()
+
 
         with conn.cursor() as cursor:
             # First check if item exists
@@ -311,7 +571,8 @@ def supprimer_vetement(id, user_email):
     """Supprime un vêtement de la base de données SQL et son image associée"""
     try:
         # Connexion à la base de données
-        conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+        conn = get_db_connection()
+
         
         # Trouver le type du vêtement avant de le supprimer
         with conn.cursor() as cursor:
@@ -388,7 +649,7 @@ def increment_usage_count(id,table , user_email):
             conn.close()
 
 def BDD_parmail_use_croiss(mail='local'): 
-    conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     tables = ['pull', 't_shirt', 'jupe', 'robe', 'pantalon', 'chemise', 'manteau', 'short',
@@ -420,7 +681,7 @@ def BDD_parmail_use_croiss(mail='local'):
     return clothes_database
 
 def BDD_parmail_use_decroiss(mail='local'): 
-    conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     tables = ['pull', 't_shirt', 'jupe', 'robe', 'pantalon', 'chemise', 'manteau', 'short',
@@ -452,9 +713,8 @@ def BDD_parmail_use_decroiss(mail='local'):
     return clothes_database
 
 def BDD_parmail_par_couleur(coul, mail='local'):
-    import pymysql
 
-    conn = pymysql.connect(host='127.0.0.1', user='root', password='mdpsql', database='clothes')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     tables = ['pull', 't_shirt', 'jupe', 'robe', 'pantalon', 'chemise', 'manteau', 'short',

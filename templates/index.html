@@ -722,6 +722,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button type="submit" class="btn">Recommander</button>
                 </div>
 
+                <div style="margin-top: 10px; display: flex; justify-content: center; align-items: center;">
+                    <button type="button" class="btn" id="find-city-btn" style="padding: 8px 18px; font-size: 0.95em;">
+                        📍 Trouver ma ville automatiquement
+                    </button>
+                    <span id="city-status" style="margin-left:10px; color:#fda085; font-size:0.95em;"></span>
+                </div>
+
                 <div style="margin-bottom: 20px;">
                     <label><strong>Genre :</strong></label>
                     <div class="radio-group">
@@ -746,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         <div class="clothing-grid" id="recommendation1-grid"></div>
-        <form method="POST" action="{{ url_for('select_outfit') }}" id="select-outfit-form">
+        <form method="POST" action="{{ url_for('select_outfit') }}" id="select-outfit-form" style="display: flex; justify-content: center;">
             <input type="hidden" name="outfit_items" value="">
             <button type="submit" class="select-btn">✨ Utiliser cette tenue</button>
         </form>
@@ -754,20 +761,23 @@ document.addEventListener('DOMContentLoaded', function() {
         {% if recommendation2 %}
         <h2>Deuxième tenue recommandée :</h2>
         <div class="clothing-grid" id="recommendation2-grid"></div>
-        <form method="POST" action="{{ url_for('select_outfit') }}" id="select-outfit2-form">
+        <form method="POST" action="{{ url_for('select_outfit') }}" id="select-outfit2-form" style="display: flex; justify-content: center;">
             <input type="hidden" name="outfit_items" value="">
             <button type="submit" class="select-btn">✨ Utiliser cette tenue</button>
-        </form>
+        </form> 
         
         {% endif %}
 
             </div>
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px;">
                     {% if session.user_email %}
-                        Connecté en tant que {{ session.user_email }} |
-                        <a href="{{ url_for('logout') }}">Déconnexion</a>
+                        <div style="text-align:left;">
+                            <div style="font-weight: bold; color:#444; font-size: 1.05em;">Connecté</div>
+                            <div style="font-size: 0.97em; color: #444;">{{ session.user_email }}</div>
+                        </div>
+                        <a href="{{ url_for('logout') }}" style="background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%); color: white; padding: 8px 18px; border-radius: 20px; text-decoration: none; font-weight: bold; margin-left: 18px; transition: background 0.2s;">Déconnexion</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}">Connexion Google</a>
+                        <a href="{{ url_for('login') }}" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: white; padding: 10px 22px; border-radius: 20px; text-decoration: none; font-weight: bold;">Connexion Google</a>
                     {% endif %}
 
                     <a href="{{ url_for('upload_file') }}" class="upload-btn">🧥 Ajouter un vêtement</a>
@@ -775,6 +785,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     <a href="{{ url_for('wardrobe') }}" class="upload-btn">👔 Voir ma garde-robe</a>
                 </div>
         </div>
+
+        <script>
+        document.getElementById('find-city-btn').onclick = function() {
+            const status = document.getElementById('city-status');
+            status.textContent = "Recherche...";
+            if (!navigator.geolocation) {
+                status.textContent = "Géolocalisation non supportée.";
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.address && data.address.city) {
+                            document.querySelector('input[name="city"]').value = data.address.city;
+                            status.textContent = "Ville détectée : " + data.address.city;
+                        } else if (data.address && data.address.town) {
+                            document.querySelector('input[name="city"]').value = data.address.town;
+                            status.textContent = "Ville détectée : " + data.address.town;
+                        } else if (data.address && data.address.village) {
+                            document.querySelector('input[name="city"]').value = data.address.village;
+                            status.textContent = "Ville détectée : " + data.address.village;
+                        } else {
+                            status.textContent = "Ville non trouvée.";
+                        }
+                    })
+                    .catch(() => status.textContent = "Erreur lors de la détection.");
+            }, function() {
+                status.textContent = "Autorisation refusée.";
+            });
+        };
+        </script>
 </body>
 </html>
 

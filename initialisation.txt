@@ -1,0 +1,7 @@
+pip install flask
+pip install cryptography
+pip install pytz
+pip install Flask Flask-Dance
+pip install requests-oauthlib
+pip install --upgrade flask-dance
+pip install python-dotenv

@@ -300,10 +300,9 @@ def index():
         resp = google.get('/oauth2/v2/userinfo')
         if not resp.ok:
             raise ValueError(f"Erreur API Google ({resp.status_code})")
-            
         user_info = resp.json()
         user_email = user_info['email']
-        
+
         # 2. Mise à jour de la session
         session.update({
             'user_email': user_email,
@@ -314,7 +313,6 @@ def index():
 
         # 3. Gestion des credentials
         credentials = load_user_credentials()
-        
         if not credentials:
             flash("Session expirée", "warning")
             return redirect(url_for('logout'))
@@ -336,7 +334,6 @@ def index():
 
         # 5. Traitement POST avec ville
         if request.method == 'POST' and default_values['city']:
-            # Remise à zéro des listes des vêtements déjà changés pour les deux tenues
             session['vetements_deja_changes'] = None
             session['vetements_deja_changes2'] = None
             try:
@@ -348,6 +345,32 @@ def index():
                     user_email
                 )
                 default_values.update(result)
+            except Exception as e:
+                default_values['error_message'] = f"Erreur : {str(e)}"
+                print(f"Erreur traitement : {e}")
+        else:
+            # GET : afficher le planning même sans ville (utiliser une valeur par défaut)
+            ville = default_values['city'] or "Paris"
+            try:
+                result = process_user_request(
+                    credentials,
+                    ville,
+                    default_values['genre'],
+                    default_values['style'],
+                    user_email
+                )
+                default_values.update(result)
+                # Déterminer la ville par défaut basée sur la localisation IP si aucune ville n'est fournie
+                if not default_values['city']:
+                    try:
+                        ip_info = requests.get("https://ipinfo.io/json", timeout=2).json()
+                        ville_ip = ip_info.get("city", "Paris")
+                        default_values['city'] = ville_ip
+                    except Exception as e:
+                        print(f"Erreur détection ville par IP: {e}")
+                        default_values['city'] = ville
+                else:
+                    default_values['city'] = ville
             except Exception as e:
                 default_values['error_message'] = f"Erreur : {str(e)}"
                 print(f"Erreur traitement : {e}")
@@ -555,6 +578,7 @@ def logout():
     return redirect(url_for('login'))
 
 from pprint import pprint
+import requests
 
 @app.route('/debug_token')
 def debug_token():
@@ -642,16 +666,17 @@ def wardrobe():
         return redirect(url_for('login'))
 
     user_email = session.get('user_email')
-    choix = "jaune"
+    filtre = request.args.get('filtre')
+    valeur = request.args.get('valeur', '').strip()
     # Récupérer tous les vêtements de l'utilisateur
-    if choix == "croissant":
+    if filtre == "croissant":
         clothes = BDD_parmail_use_croiss(user_email)
-    elif choix == "par ID":
-        clothes = BDD_parmail(user_email)
-    elif choix == "decroissant":
+    elif filtre == "decroissant":
         clothes = BDD_parmail_use_decroiss(user_email)
+    elif filtre == "couleur" and valeur:
+        clothes = BDD_parmail_par_couleur(valeur, user_email)
     else:
-        clothes = BDD_parmail_par_couleur(choix, user_email)
+        clothes = BDD_parmail(user_email)
 
     clothes_by_type = {}
     for item in clothes:
